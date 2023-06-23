@@ -1,5 +1,6 @@
 #include <cmath>
 #include <algorithm>
+#include <chrono>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "displayer.hpp"
@@ -37,8 +38,11 @@ void Displayer::display(bool continuous_update) {
 
         // update displayed pixels
         if (i == 0 || continuous_update) {
+            const auto start = std::chrono::high_resolution_clock::now();
             update_window();
-            std::cout << "Updated window, iteration " << i << "\n";
+            const auto end = std::chrono::high_resolution_clock::now();
+            const auto time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+            std::cout << "Iteration " << i << ", took " << time_elapsed << " milliseconds\n";
         }
         i += 1;
     }

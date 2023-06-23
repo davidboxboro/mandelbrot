@@ -14,7 +14,7 @@ clean:
 	rm -f $(ex_file)
 
 build:
-	$(compiler) -fopenmp -std=c++20 $(src_files) -o $(ex_file) $(sfml_flags)
+	$(compiler) -O3 -fopenmp -std=c++20 $(src_files) -o $(ex_file) $(sfml_flags)
 
 run: all
 	./$(ex_file)
