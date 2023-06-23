@@ -11,15 +11,15 @@ CoordRegion::CoordRegion(
       num_pix_y{num_pix_y} {
 }
 
-std::vector<float> CoordRegion::get_pix_coords_y() {
+std::vector<float> CoordRegion::get_pix_coords_y() const {
     return _get_pix_coords(bounds_y, num_pix_y);
 }
 
-std::vector<float> CoordRegion::get_pix_coords_x() {
+std::vector<float> CoordRegion::get_pix_coords_x() const {
     return _get_pix_coords(bounds_x, num_pix_x);
 }
 
-std::vector<float> CoordRegion::_get_pix_coords(sf::Vector2f bounds, unsigned num_pix) {
+std::vector<float> CoordRegion::_get_pix_coords(sf::Vector2f bounds, unsigned num_pix) const {
     std::vector<float> coords(num_pix_x);
     const float min = bounds.x;
     const float max = bounds.y;

@@ -9,21 +9,21 @@
 class Displayer {
 public:
     Displayer(
-        sf::Vector2f init_bounds_x = INIT_BOUNDS_X,
-        sf::Vector2f init_bounds_y = INIT_BOUNDS_Y,
-        unsigned num_pix_x = NUM_PIX_X,
-        unsigned num_pix_y = NUM_PIX_Y,
-        float scroll_zoom_factor = SCROLL_ZOOM_FACTOR
+        const sf::Vector2f& init_bounds_x = INIT_BOUNDS_X,
+        const sf::Vector2f& init_bounds_y = INIT_BOUNDS_Y,
+        const unsigned num_pix_x = NUM_PIX_X,
+        const unsigned num_pix_y = NUM_PIX_Y,
+        const float scroll_zoom_factor = SCROLL_ZOOM_FACTOR
     );
 
-    void display(bool continuous_update = true); // main function
+    void display(const bool continuous_update = true); // main function
 
     void handle_events(); // event loop for window
 
     void update_image(); // update image
     void update_window(); // use updated image to update frame on window
 
-    void translate_reg(const sf::Vector2i mouse_pos_change); // mouse click and drag
+    void translate_reg(const sf::Vector2i& mouse_pos_change); // mouse click and drag
     void zoom_reg(const float mouse_scroll_delta); // mouse scroll
 
 private:

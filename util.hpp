@@ -12,12 +12,12 @@ public:
         unsigned num_pix_x, unsigned num_pix_y
     );
 
-    std::vector<float> get_pix_coords_y();
-    std::vector<float> get_pix_coords_x();
-    std::vector<float> _get_pix_coords(sf::Vector2f bounds, unsigned num_pix);
+    std::vector<float> get_pix_coords_y() const;
+    std::vector<float> get_pix_coords_x() const;
+    std::vector<float> _get_pix_coords(sf::Vector2f bounds, unsigned num_pix) const;
 
-    inline sf::Vector2f get_bounds_x() { return bounds_x; }
-    inline sf::Vector2f get_bounds_y() { return bounds_y; }
+    inline sf::Vector2f get_bounds_x() const { return bounds_x; }
+    inline sf::Vector2f get_bounds_y() const { return bounds_y; }
     inline void set_bounds_x(sf::Vector2f new_bounds_x) {
         bounds_x = new_bounds_x;
     }
@@ -25,19 +25,19 @@ public:
         bounds_y = new_bounds_y;
     }
 
-    inline unsigned get_num_pix_x() { return num_pix_x; }
-    inline unsigned get_num_pix_y() { return num_pix_y; }
+    inline unsigned get_num_pix_x() const { return num_pix_x; }
+    inline unsigned get_num_pix_y() const { return num_pix_y; }
 
-    inline float get_pix_width() {
+    inline float get_pix_width() const {
         return (bounds_x.y - bounds_x.x) / num_pix_x;
     }
-    inline float get_pix_height() {
+    inline float get_pix_height() const {
         return (bounds_y.y - bounds_y.x) / num_pix_y;
     }
-    inline float get_width() {
+    inline float get_width() const {
         return bounds_x.y - bounds_x.x;
     }
-    inline float get_height() {
+    inline float get_height() const {
         return bounds_y.y - bounds_y.x;
     }
 

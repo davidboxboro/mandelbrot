@@ -1,5 +1,6 @@
 #include <cmath>
 #include <algorithm>
+#include <numeric>
 #include <chrono>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -7,9 +8,9 @@
 
 
 Displayer::Displayer(
-    sf::Vector2f init_bounds_x, sf::Vector2f init_bounds_y,
-    unsigned num_pix_x, unsigned num_pix_y,
-    float scroll_zoom_factor
+    const sf::Vector2f& init_bounds_x, const sf::Vector2f& init_bounds_y,
+    const unsigned num_pix_x, const unsigned num_pix_y,
+    const float scroll_zoom_factor
 )
     : reg{init_bounds_x, init_bounds_y, num_pix_x, num_pix_y},
       scroll_zoom_factor{scroll_zoom_factor},
@@ -30,19 +31,32 @@ Displayer::Displayer(
     image.create(reg.get_num_pix_x(), reg.get_num_pix_y());
 }
 
-void Displayer::display(bool continuous_update) {
+void Displayer::display(const bool continuous_update) {
     // main loop
     int i = 0;
+    std::vector<float> time_elapsed_vec;
     while (window.isOpen()) {
         handle_events();
-
         // update displayed pixels
         if (i == 0 || continuous_update) {
             const auto start = std::chrono::high_resolution_clock::now();
             update_window();
             const auto end = std::chrono::high_resolution_clock::now();
-            const auto time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-            std::cout << "Iteration " << i << ", took " << time_elapsed << " milliseconds\n";
+            const float time_elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.;
+            // std::cout << "Iteration " << i << ": " << time_elapsed << " ms\n";
+
+            // compute mean iteration time for testing purposes
+            if (i >= 1) {
+                // first few iterations take much longer and have higher variance,
+                // so they throw off the mean estimate
+                time_elapsed_vec.push_back(time_elapsed);
+            }
+            const unsigned targ_num_iter = 50;
+            if (time_elapsed_vec.size() == targ_num_iter) {
+                const auto mean_time_elapsed = std::reduce(time_elapsed_vec.begin(), time_elapsed_vec.end()) / targ_num_iter;
+                std::cout << "First " << targ_num_iter << " iterations: " << mean_time_elapsed << " ms\n";
+                // std::exit(0);
+            }
         }
         i += 1;
     }
@@ -60,7 +74,7 @@ void Displayer::handle_events() {
             mouse_pressed = true;
         }
         else if (mouse_pressed && event.type == sf::Event::MouseMoved) {
-            cur_mouse_pos = sf::Mouse::getPosition(window);
+            cur_mouse_pos = {event.mouseMove.x, event.mouseMove.y};
             const sf::Vector2i mouse_pos_change = cur_mouse_pos - prev_mouse_pos;
             translate_reg(mouse_pos_change);
             prev_mouse_pos = cur_mouse_pos;
@@ -70,7 +84,6 @@ void Displayer::handle_events() {
         }
         else if (event.type == sf::Event::MouseWheelScrolled) {
             const float mouse_scroll_delta = event.mouseWheelScroll.delta;
-            const sf::Vector2i mouse_pos = sf::Mouse::getPosition(window);
             zoom_reg(mouse_scroll_delta);
         }
     }
@@ -89,9 +102,12 @@ void Displayer::update_image() {
     const auto pix_coords_x = reg.get_pix_coords_x();
     const auto pix_coords_y = reg.get_pix_coords_y();
 
+    const auto num_pix_x = reg.get_num_pix_x();
+    const auto num_pix_y = reg.get_num_pix_y();
+
     #pragma omp parallel for
-    for (int i = 0; i < reg.get_num_pix_x(); i++) {
-        for (int j = 0; j < reg.get_num_pix_y(); j++) {
+    for (int j = 0; j < num_pix_y; j++) {
+        for (int i = 0; i < num_pix_x; i++) {
             const auto x = pix_coords_x[i];
             const auto y = pix_coords_y[j];
             const auto color = color_calculator.get_color(x, y);
@@ -100,7 +116,7 @@ void Displayer::update_image() {
     }
 }
 
-void Displayer::translate_reg(const sf::Vector2i mouse_pos_change) {
+void Displayer::translate_reg(const sf::Vector2i& mouse_pos_change) {
     const float d_bounds_x = (static_cast<float>(mouse_pos_change.x) / window.getSize().x) * reg.get_width();
     const float d_bounds_y = (static_cast<float>(mouse_pos_change.y) / window.getSize().y) * reg.get_height();
     reg.set_bounds_x(reg.get_bounds_x() - sf::Vector2f{d_bounds_x, d_bounds_x});
