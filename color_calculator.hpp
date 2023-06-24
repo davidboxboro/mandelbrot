@@ -91,11 +91,13 @@ public:
             z1 = _mm256_add_ps(_mm256_sub_ps(z1_sq, z2_sq), x_values);
         }
 
-        std::array<const sf::Color*, N> ret_colors;
+        // we return pointers because copying sf::Color a few million times
+        // is expensive
+        std::array<const sf::Color*, N> color_ptrs;
         for (int k = 0; k < N; ++k) {
-            ret_colors[k] = &idx_to_color[escape_idxs[k]];
+            color_ptrs[k] = &idx_to_color[escape_idxs[k]];
         }
-        return ret_colors;
+        return color_ptrs;
     }
 
     static inline sf::Color get_averaged_color(const sf::Color& c1, const sf::Color& c2, const float frac) {

@@ -55,7 +55,7 @@ void Displayer::display(const bool continuous_update) {
             if (time_elapsed_vec.size() == targ_num_iter) {
                 const auto mean_time_elapsed = std::reduce(time_elapsed_vec.begin(), time_elapsed_vec.end()) / targ_num_iter;
                 std::cout << "First " << targ_num_iter << " iterations: " << mean_time_elapsed << " ms\n";
-                // std::exit(0);
+                std::exit(0);
             }
         }
         i += 1;
