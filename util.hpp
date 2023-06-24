@@ -8,20 +8,24 @@
 class CoordRegion {
 public:
     CoordRegion(
-        sf::Vector2f bounds_x, sf::Vector2f bounds_y,
-        unsigned num_pix_x, unsigned num_pix_y
+        const sf::Vector2f& bounds_x, const sf::Vector2f& bounds_y,
+        const unsigned num_pix_x, const unsigned num_pix_y
     );
 
-    std::vector<float> get_pix_coords_y() const;
-    std::vector<float> get_pix_coords_x() const;
-    std::vector<float> _get_pix_coords(sf::Vector2f bounds, unsigned num_pix) const;
+    const std::vector<float>& get_pix_coords_y(); // return a reference to avoid copying
+    const std::vector<float>& get_pix_coords_x();
+    void _update_pix_coords(
+        std::vector<float>& pix_coords,
+        const sf::Vector2f& bounds,
+        const unsigned num_pix
+    );
 
     inline sf::Vector2f get_bounds_x() const { return bounds_x; }
     inline sf::Vector2f get_bounds_y() const { return bounds_y; }
-    inline void set_bounds_x(sf::Vector2f new_bounds_x) {
+    inline void set_bounds_x(const sf::Vector2f& new_bounds_x) {
         bounds_x = new_bounds_x;
     }
-    inline void set_bounds_y(sf::Vector2f new_bounds_y) {
+    inline void set_bounds_y(const sf::Vector2f& new_bounds_y) {
         bounds_y = new_bounds_y;
     }
 
@@ -47,6 +51,9 @@ private:
 
     const unsigned num_pix_x;
     const unsigned num_pix_y;
+
+    std::vector<float> pix_coords_x;
+    std::vector<float> pix_coords_y;
 };
 
 

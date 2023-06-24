@@ -2,32 +2,38 @@
 
 
 CoordRegion::CoordRegion(
-    sf::Vector2f bounds_x, sf::Vector2f bounds_y,
-    unsigned num_pix_x, unsigned num_pix_y
+    const sf::Vector2f& bounds_x, const sf::Vector2f& bounds_y,
+    const unsigned num_pix_x, const unsigned num_pix_y
 )
     : bounds_x{bounds_x},
       bounds_y{bounds_y},
       num_pix_x{num_pix_x},
-      num_pix_y{num_pix_y} {
+      num_pix_y{num_pix_y},
+      pix_coords_x(num_pix_x),
+      pix_coords_y(num_pix_y) {
 }
 
-std::vector<float> CoordRegion::get_pix_coords_y() const {
-    return _get_pix_coords(bounds_y, num_pix_y);
+const std::vector<float>& CoordRegion::get_pix_coords_y() {
+    _update_pix_coords(pix_coords_y, bounds_y, num_pix_y);
+    return pix_coords_y;
 }
 
-std::vector<float> CoordRegion::get_pix_coords_x() const {
-    return _get_pix_coords(bounds_x, num_pix_x);
+const std::vector<float>& CoordRegion::get_pix_coords_x() {
+    _update_pix_coords(pix_coords_x, bounds_x, num_pix_x);
+    return pix_coords_x;
 }
 
-std::vector<float> CoordRegion::_get_pix_coords(sf::Vector2f bounds, unsigned num_pix) const {
-    std::vector<float> coords(num_pix_x);
+void CoordRegion::_update_pix_coords(
+    std::vector<float>& pix_coords,
+    const sf::Vector2f& bounds,
+    const unsigned num_pix
+) {
     const float min = bounds.x;
     const float max = bounds.y;
     const float step = (max - min) / num_pix;
     for (int i = 0; i < num_pix; i++) {
-        coords[i] = min + step * i + step / 2.;
+        pix_coords[i] = min + step * i + step / 2.;
     }
-    return coords;
 }
 
 

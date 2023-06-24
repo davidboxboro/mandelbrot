@@ -91,23 +91,43 @@ void Displayer::handle_events() {
 
 void Displayer::update_window() {
     window.clear();
-    update_image();
+    update_image_simd();
     texture.loadFromImage(image);
     sprite.setTexture(texture);
     window.draw(sprite);
     window.display();
 }
 
-void Displayer::update_image() {
-    const auto pix_coords_x = reg.get_pix_coords_x();
-    const auto pix_coords_y = reg.get_pix_coords_y();
+void Displayer::update_image_simd() {
+    const auto& pix_coords_x = reg.get_pix_coords_x();
+    const auto& pix_coords_y = reg.get_pix_coords_y();
 
     const auto num_pix_x = reg.get_num_pix_x();
     const auto num_pix_y = reg.get_num_pix_y();
 
     #pragma omp parallel for
-    for (int j = 0; j < num_pix_y; j++) {
-        for (int i = 0; i < num_pix_x; i++) {
+    for (int j = 0; j < num_pix_y; ++j) {
+        for (int i = 0; i < num_pix_x; i += SIMD_MULTIPLIER) {
+            const auto x_ptr = &pix_coords_x[i];
+            const auto y = pix_coords_y[j];
+            const auto color_ptrs = color_calculator.get_color_simd(x_ptr, y);
+            for (int k = 0; k < SIMD_MULTIPLIER; ++k) {
+                image.setPixel(i + k, j, *color_ptrs[k]);
+            }
+        }
+    }
+}
+
+void Displayer::update_image() {
+    const auto& pix_coords_x = reg.get_pix_coords_x();
+    const auto& pix_coords_y = reg.get_pix_coords_y();
+
+    const auto num_pix_x = reg.get_num_pix_x();
+    const auto num_pix_y = reg.get_num_pix_y();
+
+    #pragma omp parallel for
+    for (int j = 0; j < num_pix_y; ++j) {
+        for (int i = 0; i < num_pix_x; ++i) {
             const auto x = pix_coords_x[i];
             const auto y = pix_coords_y[j];
             const auto color = color_calculator.get_color(x, y);

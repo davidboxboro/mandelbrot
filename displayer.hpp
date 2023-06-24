@@ -21,6 +21,8 @@ public:
     void handle_events(); // event loop for window
 
     void update_image(); // update image
+    void update_image_simd(); // faster version
+
     void update_window(); // use updated image to update frame on window
 
     void translate_reg(const sf::Vector2i& mouse_pos_change); // mouse click and drag
