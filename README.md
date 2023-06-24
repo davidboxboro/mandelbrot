@@ -1,6 +1,6 @@
-## Mandelbrot Set Rendering
+# Mandelbrot Set Rendering
 
-# Optimizations
+## Optimizations
 - set aggressive compiler optimization flags
 - parallelize for loop over pixels with OpenMP (works on LLVM but not Apple Clang)
 - iterate over y then x in nested for loops for cache efficiency

@@ -29,6 +29,8 @@ Displayer::Displayer(
     // image is updated as pixels change
     // these changes propogate into texture and then sprite
     image.create(reg.get_num_pix_x(), reg.get_num_pix_y());
+    texture.loadFromImage(image);
+    sprite.setTexture(texture);
 }
 
 void Displayer::display(const bool continuous_update) {
@@ -93,7 +95,6 @@ void Displayer::update_window() {
     window.clear();
     update_image_simd();
     texture.loadFromImage(image);
-    sprite.setTexture(texture);
     window.draw(sprite);
     window.display();
 }
