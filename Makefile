@@ -8,7 +8,7 @@ sfml_flags = -I$(sfml_include_dir) -L$(sfml_lib_dir) -lsfml-graphics -lsfml-wind
 
 compiler = /usr/local/Cellar/llvm/16.0.6/bin/clang++
 
-opt_flags = -Ofast -march=native
+opt_flags = -Ofast -march=native -mtune=native
 
 all: clean build
 

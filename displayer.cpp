@@ -8,29 +8,42 @@
 
 
 Displayer::Displayer(
-    const sf::Vector2f& init_bounds_x, const sf::Vector2f& init_bounds_y,
-    const unsigned num_pix_x, const unsigned num_pix_y,
-    const float scroll_zoom_factor
+    const sf::Vector2f& init_bounds_x,
+    const unsigned num_pix_x,
+    const float scroll_zoom_factor,
+    const float keyboard_scroll_delta
 )
-    : reg{init_bounds_x, init_bounds_y, num_pix_x, num_pix_y},
-      scroll_zoom_factor{scroll_zoom_factor},
+    :
       color_calculator{},
-      window{sf::VideoMode{num_pix_x, num_pix_y}, "Mandelbrot Set", sf::Style::Fullscreen},
+      scroll_zoom_factor{scroll_zoom_factor},
+      keyboard_scroll_delta{keyboard_scroll_delta},
+      desktop_width{sf::VideoMode::getDesktopMode().width},
+      desktop_height{sf::VideoMode::getDesktopMode().height},
+      reg{init_bounds_x, compute_bounds_y(init_bounds_x), num_pix_x, compute_num_pix_y(num_pix_x)},
+      window{sf::VideoMode{desktop_width, desktop_height}, "Mandelbrot Set", sf::Style::Fullscreen},
       mouse_pressed{false} {
-
-    // enables full-screen to work correctly (not sure exactly why)
-    sf::View view{
-        sf::FloatRect{
-            0, 0, static_cast<float>(num_pix_x), static_cast<float>(num_pix_y),
-        }
-    };
-    window.setView(view);
 
     // image is updated as pixels change
     // these changes propogate into texture and then sprite
     image.create(reg.get_num_pix_x(), reg.get_num_pix_y());
     texture.loadFromImage(image);
     sprite.setTexture(texture);
+
+    // the number of pixels in the computed image is usually smaller than the desktop,
+    // so we resize the sprite (containing the image) to fill the screen
+    const auto x_ratio = static_cast<float>(desktop_width) / reg.get_num_pix_x();
+    const auto y_ratio = static_cast<float>(desktop_height) / reg.get_num_pix_y();
+    sprite.setScale(x_ratio, y_ratio);
+}
+
+sf::Vector2f Displayer::compute_bounds_y(const sf::Vector2f& bounds_x) {
+    const float init_max_y = 0.5f * (bounds_x.y - bounds_x.x) * desktop_height / desktop_width;
+    return {-init_max_y, init_max_y};
+}
+
+unsigned Displayer::compute_num_pix_y(const unsigned num_pix_x) {
+    const unsigned num_pix_y = num_pix_x * desktop_height / desktop_width;
+    return num_pix_y;
 }
 
 void Displayer::display(const bool continuous_update) {
@@ -57,7 +70,7 @@ void Displayer::display(const bool continuous_update) {
             if (time_elapsed_vec.size() == targ_num_iter) {
                 const auto mean_time_elapsed = std::reduce(time_elapsed_vec.begin(), time_elapsed_vec.end()) / targ_num_iter;
                 std::cout << "First " << targ_num_iter << " iterations: " << mean_time_elapsed << " ms\n";
-                std::exit(0);
+                // std::exit(0);
             }
         }
         i += 1;
@@ -87,6 +100,14 @@ void Displayer::handle_events() {
         else if (event.type == sf::Event::MouseWheelScrolled) {
             const float mouse_scroll_delta = event.mouseWheelScroll.delta;
             zoom_reg(mouse_scroll_delta);
+        }
+        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::J) {
+            const float mouse_scroll_delta = event.mouseWheelScroll.delta;
+            zoom_reg(keyboard_scroll_delta);
+        }
+        else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::K) {
+            const float mouse_scroll_delta = event.mouseWheelScroll.delta;
+            zoom_reg(-keyboard_scroll_delta);
         }
     }
 }
